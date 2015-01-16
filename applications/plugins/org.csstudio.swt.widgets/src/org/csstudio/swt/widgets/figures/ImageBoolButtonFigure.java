@@ -9,6 +9,7 @@ package org.csstudio.swt.widgets.figures;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.swt.widgets.symbol.SymbolImage;
 import org.csstudio.swt.widgets.symbol.SymbolImageFactory;
@@ -21,8 +22,6 @@ import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Display;
 
 /**
  * The image boolean button figure.
@@ -45,10 +44,7 @@ public class ImageBoolButtonFigure extends AbstractBoolControlFigure implements
 
 	private IPath offImagePath;
 
-	private int remainingImagesToLoad = 0;
-
-	private Color foregroundColor;
-	private boolean useForegroundColor = false;
+	private AtomicInteger remainingImagesToLoad = new AtomicInteger(0);
 
 	private boolean animationDisabled = false;
 
@@ -135,11 +131,15 @@ public class ImageBoolButtonFigure extends AbstractBoolControlFigure implements
 	}
 
 	public boolean isLoadingImage() {
-		return remainingImagesToLoad > 0;
+		return remainingImagesToLoad.get() > 0;
 	}
 
-	public synchronized void decrementLoadingCounter() {
-		remainingImagesToLoad--;
+	public void decrementLoadingCounter() {
+		remainingImagesToLoad.decrementAndGet();
+	}
+	
+	public void incrementLoadingCounter() {
+		remainingImagesToLoad.incrementAndGet();
 	}
 
 	@Override
@@ -175,10 +175,6 @@ public class ImageBoolButtonFigure extends AbstractBoolControlFigure implements
 		} else {
 			symbolImage.setBackgroundColor(getBackgroundColor());
 		}
-		Color currentcolor = null;
-		if (useForegroundColor) currentcolor = getForegroundColor();
-		else currentcolor = new Color(Display.getCurrent(), new RGB(0, 0, 0));
-		symbolImage.setCurrentColor(currentcolor);
 		symbolImage.paintFigure(graphics);
 		super.paintClientArea(graphics);
 	}
@@ -191,24 +187,26 @@ public class ImageBoolButtonFigure extends AbstractBoolControlFigure implements
 	}
 
 	public synchronized void setOffImagePath(IPath offImagePath) {
-		remainingImagesToLoad++;
 		this.offImagePath = offImagePath;
 		if (offImage != null) {
 			offImage.dispose();
 			offImage = null;
 		}
+		if (offImagePath != null && !offImagePath.isEmpty())
+			incrementLoadingCounter();
 		offImage = SymbolImageFactory.asynCreateSymbolImage(this.offImagePath,
 				true, symbolProperties, this);
 	}
 
 	public synchronized void setOnImagePath(IPath onImagePath) {
-		remainingImagesToLoad++;
 		this.onImagePath = onImagePath;
 		if (onImage != null) {
 			onImage.dispose();
 			onImage = null;
 		}
-		onImage = SymbolImageFactory.asynCreateSymbolImage(this.onImagePath, 
+		if (onImagePath != null && !onImagePath.isEmpty())
+			incrementLoadingCounter();
+		onImage = SymbolImageFactory.asynCreateSymbolImage(this.onImagePath,
 				true, symbolProperties, this);
 	}
 
@@ -231,24 +229,6 @@ public class ImageBoolButtonFigure extends AbstractBoolControlFigure implements
 	public void setValue(double value) {
 		super.setValue(value);
 		revalidate();
-	}
-
-	public void setUseForegroundColor(boolean useForegroundColor) {
-		this.useForegroundColor = useForegroundColor;
-		repaint();
-	}
-
-	@Override
-	public Color getForegroundColor() {
-		return foregroundColor;
-	}
-
-	@Override
-	public void setForegroundColor(Color foregroundColor) {
-		this.foregroundColor = foregroundColor;
-		if (foregroundColor != null)
-			this.boolLabel.setForegroundColor(foregroundColor);
-		repaint();
 	}
 
 	@Override
@@ -305,8 +285,8 @@ public class ImageBoolButtonFigure extends AbstractBoolControlFigure implements
 	public void symbolImageLoaded() {
 		decrementLoadingCounter();
 		sizeChanged();
-		repaint();
 		revalidate();
+		repaint();
 	}
 
 	public void repaintRequested() {
@@ -314,7 +294,8 @@ public class ImageBoolButtonFigure extends AbstractBoolControlFigure implements
 	}
 
 	public void sizeChanged() {
-		imageListener.imageResized(this);
+		if (imageListener != null)
+			imageListener.imageResized(this);
 	}
 
 }

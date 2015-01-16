@@ -17,6 +17,7 @@
     <module>org.csstudio.alarm.beast.configtool</module>
     <module>org.csstudio.alarm.beast.msghist</module>
     <module>org.csstudio.alarm.beast.notifier</module>
+    <module>org.csstudio.alarm.beast.notifier.logbook</module>
     <module>org.csstudio.alarm.beast.notifier.intro</module>
     <module>org.csstudio.alarm.beast.server</module>
     <module>org.csstudio.alarm.beast.ui</module>
@@ -105,6 +106,7 @@
     <module>org.csstudio.opibuilder.widgets.rap</module>
     <module>org.csstudio.opibuilder.widgets.rcp</module>
     <module>org.csstudio.opibuilder.widgets.symbol</module>
+    <module>org.csstudio.pvmanager.formula.channelfinder</module>
     <module>org.csstudio.remote</module>
 <!--     <module>org.csstudio.remote.test</module> -->
     <module>org.csstudio.scan</module>
@@ -141,6 +143,8 @@
     <module>org.csstudio.simplepv.utilitypv.test</module>
     <module>org.csstudio.snl.intro</module>
     <module>org.csstudio.swt.chart</module>
+    <module>org.csstudio.swt.rtplot</module>
+    <!-- <module>org.csstudio.swt.rtplot.test</module> -->
     <module>org.csstudio.swt.widgets</module>
     <module>org.csstudio.swt.widgets.rcp</module>
     <!--module>org.csstudio.swt.widgets.test</module--><!-- Graphic test that does not follow naming convention for tests-->
@@ -199,29 +203,37 @@
     <module>org.csstudio.utility.treemodel</module>
     <module>org.csstudio.utility.treemodel.test</module>
     <module>org.csstudio.vtype.pv</module>
-	
-	<!--module>org.csstudio.alarm.beast.test</module--><!-- Error in threading. Test failes to end. -->
-	<module>org.csstudio.alarm.beast.annunciator.test</module>
-	<module>org.csstudio.alarm.beast.msghist.test</module>
-	<module>org.csstudio.alarm.beast.notifier.test</module>
-	<module>org.csstudio.alarm.beast.server.test</module>
-	<module>org.csstudio.alarm.beast.ui.test</module>
-	<module>org.csstudio.archive.engine.test</module>
-	<module>org.csstudio.archive.reader.test</module>
-	<module>org.csstudio.archive.reader.appliance.test</module>
-	<module>org.csstudio.archive.vtype.test</module>
-	<module>org.csstudio.diag.postanalyser.test</module>
-	<!--module>org.csstudio.diag.pvfields.test</module--> <!--Tests do not end.-->
-	<module>org.csstudio.ndarray.test</module>
-	<module>org.csstudio.scan.test</module>
-	<!--module>org.csstudio.scan.server.test</module--> <!--Error at runtime.-->
-	<!--module>org.csstudio.trends.databrowser2.test</module--> <!--Error at runtime.-->
-	<!--module>org.csstudio.vtype.pv.test</module-->
-	<module>org.csstudio.utility.channel.test</module>
-	<module>org.csstudio.display.pace.test</module>
-	<module>org.csstudio.alarm.beast.configtool.test</module>
-	<!--module>org.csstudio.apputil.ui.test</module--> <!--UI tests - wrong naming.-->
-	<module>org.csstudio.archive.reader.aapi.test</module>
-	
+    <!--module>org.csstudio.alarm.beast.test</module--><!-- Error in threading. Test failes to end. -->
+    <module>org.csstudio.alarm.beast.annunciator.test</module>
+    <module>org.csstudio.alarm.beast.msghist.test</module>
+    <module>org.csstudio.alarm.beast.notifier.test</module>
+    <module>org.csstudio.alarm.beast.server.test</module>
+    <module>org.csstudio.alarm.beast.ui.test</module>
+    <module>org.csstudio.archive.engine.test</module>
+    <module>org.csstudio.archive.reader.test</module>
+    <module>org.csstudio.archive.reader.appliance.test</module>
+    <module>org.csstudio.archive.vtype.test</module>
+    <module>org.csstudio.diag.epics.pvmanager.pvtree.test</module>
+    <module>org.csstudio.diag.epics.pvtree.test</module>    
+    <module>org.csstudio.diag.postanalyser.test</module>
+    <!--module>org.csstudio.diag.pvfields.test</module--> <!--Tests do not end.-->
+    <module>org.csstudio.logbook.test</module>
+    <module>org.csstudio.ndarray.test</module>
+    <module>org.csstudio.scan.test</module>
+    <!--module>org.csstudio.scan.server.test</module--> <!--Error at runtime.-->
+    <!--module>org.csstudio.trends.databrowser2.test</module--> <!--Error at runtime.-->
+    <!--module>org.csstudio.vtype.pv.test</module-->
+    <module>org.csstudio.utility.channel.test</module>
+    <module>org.csstudio.display.pace.test</module>
+    <module>org.csstudio.alarm.beast.configtool.test</module>
+    <!--module>org.csstudio.apputil.ui.test</module--> <!--UI tests - wrong naming.-->
+    <module>org.csstudio.archive.reader.aapi.test</module>
+    <module>org.csstudio.logbook.olog.property.shift</module>
+    <module>org.csstudio.shift</module>
+    <module>org.csstudio.shift.ui</module>
+    <module>org.csstudio.shift.viewer</module>
+    <module>org.csstudio.utility.shift</module>
+    <module>org.csstudio.utility.shift.ui</module>
+    <module>org.csstudio.autocomplete.shift</module>
   </modules>
 </project>

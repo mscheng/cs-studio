@@ -10,7 +10,9 @@ package org.csstudio.alarm.beast.notifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 import org.csstudio.alarm.beast.client.AlarmTreeItem;
 import org.csstudio.alarm.beast.notifier.model.IAutomatedAction;
@@ -80,28 +82,60 @@ public class AlarmHandler {
 				alarmHandler = new PVAlarmHandler();
 				pvs.put(pv.getName(), alarmHandler);
 			}
+			EActionStatus previous_status = alarmHandler.getStatus();
 			alarmHandler.update(pv);
-			for (PVAlarmHandler ah : pvs.values()) {
-				if (ah.getStatus().equals(EActionStatus.NO_DELAY)) {
+			if (!alarmHandler.getStatus().equals(previous_status)) {
+				Activator.getLogger().log(Level.FINE,
+						"UPDATED " + getInfos() + ": " + pv.getName()
+								+ " has changed status from " + previous_status
+								+ " to " + alarmHandler.getStatus());
+			}
+			if(item.isPV()) {
+				this.status = alarmHandler.getStatus();
+				this.reason = alarmHandler.getReason();
+			} else {
+				if (alarmHandler.getStatus().equals(EActionStatus.NO_DELAY)) {
 					this.status = EActionStatus.NO_DELAY;
 					this.reason = Messages.Reason_NoDelay;
+				} else if (alarmHandler.getStatus().equals(EActionStatus.CANCELED_NO_DELAY)) {
+					pvs.remove(pv.getName());
+					Activator.getLogger().log(Level.INFO,
+							"UPDATED " + getInfos() + ": " + pv.getName()
+									+ " has been removed because " + alarmHandler.getReason());
+					if (pvs.isEmpty()) {
+						this.status = EActionStatus.CANCELED_NO_DELAY;
+						this.reason = buildReason();
+					}
 				}
-			}
-			if (!this.status.equals(EActionStatus.NO_DELAY)) {
-				boolean allCanceled = true;
-				for (PVAlarmHandler ah : pvs.values())
-					if (ah.getStatus().equals(EActionStatus.PENDING))
-						allCanceled = false;
-				if (allCanceled) {
-					this.status = EActionStatus.CANCELED;
-					if (item.isPV()) this.reason = alarmHandler.getReason();
-					else this.reason = Messages.Reason_SubActionsCanceled;
-				} else {
-					this.status = EActionStatus.PENDING;
-					this.reason = Messages.Empty;
+				if (!(this.status.equals(EActionStatus.NO_DELAY) 
+						|| this.status.equals(EActionStatus.CANCELED_NO_DELAY))) {
+					boolean allCanceled = true;
+					for (PVAlarmHandler ah : pvs.values())
+						if (ah.getStatus().equals(EActionStatus.PENDING))
+							allCanceled = false;
+					if (allCanceled) {
+						this.status = EActionStatus.CANCELED;
+						this.reason = buildReason();
+					} else {
+						this.status = EActionStatus.PENDING;
+						this.reason = Messages.Empty;
+					}
 				}
 			}
 		}
+	}
+
+	private String buildReason() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(Messages.Reason_SubActionsCanceled);
+		sb.append(":\n");
+		for (Entry<String, PVAlarmHandler> entry : pvs.entrySet()) {
+			sb.append(entry.getKey());
+			sb.append(" has been canceled because ");
+			sb.append(entry.getValue().getReason());
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 	public String getInfos() {

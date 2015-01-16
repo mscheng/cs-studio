@@ -5,12 +5,9 @@ package org.csstudio.logbook.ui;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 
-import org.csstudio.logbook.LogEntry;
-import org.csstudio.logbook.Property;
-import org.csstudio.logbook.PropertyBuilder;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * An Abstract class which provides the basic functionality expected from a
@@ -24,8 +21,6 @@ public abstract class AbstractPropertyWidget extends Composite {
     private boolean editable;
     private LogEntryChangeset logEntryChangeset;
 
-    // property that this widget is intended to be used with
-
     /**
      * A constructor which creates the composite, registers the appropriate
      * listeners and initializes it with the logEntryChangeset
@@ -35,7 +30,7 @@ public abstract class AbstractPropertyWidget extends Composite {
      * @param logEntryChangeset
      */
     public AbstractPropertyWidget(Composite parent, int style,
-	    LogEntryChangeset logEntryChangeset) {
+	    LogEntryChangeset logEntryChangeset, boolean editable) {
 	super(parent, style);
 	if (logEntryChangeset != null) {
 	    this.logEntryChangeset = logEntryChangeset;
@@ -44,10 +39,12 @@ public abstract class AbstractPropertyWidget extends Composite {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-			    updateUI();
+			    Display.getDefault().asyncExec(() -> {updateUI();});
+			    
 			}
 		    });
 	}
+	this.editable = editable;
     }
 
     public boolean isEditable() {

@@ -65,7 +65,7 @@ public class RunModeService {
     public IWorkbenchWindow getRunWorkbenchWindow(){
         return runWorkbenchWindow;
     }
-    
+
     public static void replaceOPIRuntimeContent(
             final IOPIRuntime opiRuntime, final IEditorInput input) throws PartInitException{
         opiRuntime.setOPIInput(input);
@@ -101,7 +101,8 @@ public class RunModeService {
             final DisplayOpenManager displayOpenManager, final MacrosInput macrosInput, final Rectangle windowBounds){
         final RunnerInput runnerInput = new RunnerInput(path, displayOpenManager, macrosInput);
         UIBundlingThread.getInstance().addRunnable(new Runnable(){
-             public void run() {
+            @Override
+            public void run() {
 
                 IWorkbenchWindow targetWindow = null;
                 switch (target) {
@@ -115,14 +116,17 @@ public class RunModeService {
                     if(runWorkbenchWindow == null){
                         runWorkbenchWindow = createNewWindow(windowBounds);
                         runWorkbenchWindow.addPageListener(new IPageListener(){
+                            @Override
                             public void pageClosed(IWorkbenchPage page) {
                                 runWorkbenchWindow = null;
                             }
 
+                            @Override
                             public void pageActivated(IWorkbenchPage page) {
                                 // NOP
                             }
 
+                            @Override
                             public void pageOpened(IWorkbenchPage page) {
                                 // NOP
                             }
@@ -170,13 +174,14 @@ public class RunModeService {
     }
 
 
-    public static void runOPIInView(final IPath path, 
+    public static void runOPIInView(final IPath path,
             final DisplayOpenManager displayOpenManager, final MacrosInput macrosInput, final Position position)
     {
         OPIView.setOpenedByUser(true);
         final RunnerInput runnerInput = new RunnerInput(path, displayOpenManager, macrosInput);
         UIBundlingThread.getInstance().addRunnable(new Runnable()
         {
+            @Override
             public void run()
             {
                 final IWorkbench workbench = PlatformUI.getWorkbench();
@@ -212,7 +217,7 @@ public class RunModeService {
             }
         });
     }
-    
+
     /** Open a new View that executes a display
      *  @param runnerInput {@link RunnerInput}
      *  @param page {@link IWorkbenchPage}
@@ -226,19 +231,21 @@ public class RunModeService {
         if (position != Position.DETACHED && position != Position.DEFAULT_VIEW &&
             !(page.getPerspective().getId().equals(OPIRunnerPerspective.ID)))
         {
-            int openCode=0;
-            if (!OPIBuilderPlugin.isRAP() && PreferencesHelper.isShowOpiRuntimePerspectiveDialog())
+            if (!OPIBuilderPlugin.isRAP())
             {
-                TipDialog dialog = new TipDialog(page.getWorkbenchWindow().getShell(), MessageDialog.QUESTION, 
-                        "Switch to OPI Runtime Perspective", 
-                        "To open the OPI View in expected position, you need to switch to OPI Runtime perspective."+
-                    "\nDo you want to switch to it now?");
-                openCode = dialog.open();
-                if (!dialog.isShowThisDialogAgain())
-                    PreferencesHelper.setShowOpiRuntimePerspectiveDialog(false);
+                if (PreferencesHelper.isShowOpiRuntimePerspectiveDialog())
+                {
+                    TipDialog dialog = new TipDialog(page.getWorkbenchWindow().getShell(), MessageDialog.QUESTION,
+                            "Switch to OPI Runtime Perspective",
+                            "To open the OPI View in expected position, you need to switch to OPI Runtime perspective."+
+                            "\nDo you want to switch to it now?");
+                    PreferencesHelper.setSwitchToOpiRuntimePerspective(dialog.open() == Window.OK);
+                    if (!dialog.isShowThisDialogAgain())
+                        PreferencesHelper.setShowOpiRuntimePerspectiveDialog(false);
+                }
+                if (PreferencesHelper.isSwitchToOpiRuntimePerspective())
+                    PerspectiveHelper.showPerspective(OPIRunnerPerspective.ID, page);
             }
-            if (openCode==0 ||openCode==Window.OK)
-                PerspectiveHelper.showPerspective(OPIRunnerPerspective.ID, page);
         }
 
         // Open new View
@@ -249,17 +256,17 @@ public class RunModeService {
         if (! (view instanceof OPIView))
             throw new PartInitException("Expected OPIView, got " + view);
         final OPIView opiView = (OPIView) view;
-        
+
         // Set content of view
         opiView.setOPIInput(runnerInput);
-        
+
         // Adjust position
         if (position == Position.DETACHED)
             SingleSourcePlugin.getUIHelper().detachView(opiView);
 
         return opiView;
     }
-    
+
     /**
      * @param windowBounds
      */
@@ -267,7 +274,7 @@ public class RunModeService {
         IWorkbenchWindow newWindow = null;
         try {
             newWindow =
-                PlatformUI.getWorkbench().openWorkbenchWindow(OPIRunnerPerspective.ID, null); //$NON-NLS-1$
+                PlatformUI.getWorkbench().openWorkbenchWindow(OPIRunnerPerspective.ID, null);
             if(windowBounds != null){
                 if(windowBounds.x >=0 && windowBounds.y > 1)
                     newWindow.getShell().setLocation(windowBounds.x, windowBounds.y);
